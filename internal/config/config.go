@@ -10,14 +10,14 @@ type Constants struct {
 	}
 }
 
-func initViper() (Constants, error) {
+func InitViper() (Constants, error) {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
 	if err != nil {
 		return Constants{}, err
 	}
-	viper.SetDefault("PORT", "8080")
+	viper.SetDefault("PORT", "3000")
 
 	var constants Constants
 	err = viper.Unmarshal(&constants)
