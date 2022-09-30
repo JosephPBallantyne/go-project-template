@@ -16,7 +16,6 @@ type Database struct {
 }
 
 func NewMongoClient(url string, dbName string) (*Database, error) {
-	fmt.Println("urllll" + url)
 	client, err := mongo.NewClient(options.Client().ApplyURI(url))
 	if err != nil {
 		fmt.Println("client failed")
@@ -29,7 +28,6 @@ func NewMongoClient(url string, dbName string) (*Database, error) {
 }
 
 func (d *Database) ConnectClient() error {
-	fmt.Println("client conn")
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	err := d.client.Connect(ctx)
