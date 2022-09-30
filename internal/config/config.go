@@ -1,6 +1,16 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"path/filepath"
+	"runtime"
+
+	"github.com/spf13/viper"
+)
+
+var (
+	_, b, _, _ = runtime.Caller(0)
+	Root       = filepath.Join(filepath.Dir(b), "../..")
+)
 
 type Constants struct {
 	PORT  string
@@ -12,7 +22,7 @@ type Constants struct {
 
 func InitViper() (Constants, error) {
 	viper.SetConfigName("config")
-	viper.AddConfigPath(".")
+	viper.AddConfigPath(Root)
 	err := viper.ReadInConfig()
 	if err != nil {
 		return Constants{}, err
