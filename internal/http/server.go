@@ -1,8 +1,6 @@
 package http
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -10,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/josephpballantyne/go-project-template/internal/config"
+	log "github.com/sirupsen/logrus"
 )
 
 type server struct {
@@ -32,18 +31,17 @@ func StartServer(h *Handler) *server {
 		r.Get("/user/{id}", h.GetUser())
 	})
 
-	// walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
-	// 	log.Printf("%s %s\n", method, route)
-	// 	return nil
-	// }
-	// if err := chi.Walk(r, walkFunc); err != nil {
-	// 	log.Panicf("Logging err: %s\n", err.Error())
-	// }
+	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
+		log.Printf("%s %s\n", method, route)
+		return nil
+	}
+	if err := chi.Walk(r, walkFunc); err != nil {
+		log.Panicf("Logging err: %s\n", err.Error())
+	}
 
 	constants, _ := config.InitViper()
-	fmt.Printf("Starting server on PORT:%s\n", constants.PORT)
+	log.WithFields(log.Fields{"PORT": constants.PORT}).Info("Server starting")
 	log.Fatal(http.ListenAndServe(":"+constants.PORT, r))
-
 	return &server{
 		router: r,
 	}

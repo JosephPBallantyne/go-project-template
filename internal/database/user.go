@@ -1,8 +1,6 @@
 package database
 
 import (
-	"fmt"
-
 	"github.com/josephpballantyne/go-project-template/internal/app"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -13,22 +11,23 @@ type UserService struct {
 }
 
 func (s *UserService) CreateUser(u *app.User) error {
+	const op = "UserService.CreateUser"
 	opt := options.InsertOneOptions{}
 	err := s.InsertOne("user", &opt, u)
 	if err != nil {
-		fmt.Println(err)
+		return &app.Error{Op: op, Err: err}
 	}
-	return err
+	return nil
 }
 
 func (s *UserService) GetUser(id int) (map[string]interface{}, error) {
+	const op = "UserService.GetUser"
 	opt := options.FindOneOptions{}
 	query := bson.D{bson.E{Key: "id", Value: id}}
 	output := map[string]interface{}{}
 	err := s.FindOne("user", query, &opt, &output)
 	if err != nil {
-		fmt.Println(err)
+		return output, &app.Error{Op: op, Err: err}
 	}
-
-	return output, err
+	return output, nil
 }

@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/josephpballantyne/go-project-template/internal/app"
 	"github.com/spf13/viper"
 )
 
@@ -21,15 +22,19 @@ type Constants struct {
 }
 
 func InitViper() (Constants, error) {
+	const op = "config.InitViper"
 	viper.SetConfigName("config")
 	viper.AddConfigPath(Root)
 	err := viper.ReadInConfig()
 	if err != nil {
-		return Constants{}, err
+		return Constants{}, &app.Error{Op: op, Err: err}
 	}
 	viper.SetDefault("PORT", "3000")
 
 	var constants Constants
 	err = viper.Unmarshal(&constants)
-	return constants, err
+	if err != nil {
+		return Constants{}, &app.Error{Op: op, Err: err}
+	}
+	return constants, nil
 }
