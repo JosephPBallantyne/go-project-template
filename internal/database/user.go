@@ -14,10 +14,21 @@ type UserService struct {
 
 func (s *UserService) CreateUser(u *app.User) error {
 	opt := options.InsertOneOptions{}
-	insert := bson.D{bson.E{Key: "name", Value: "jeff"}}
-	err := s.InsertOne("user", &opt, insert)
+	err := s.InsertOne("user", &opt, u)
 	if err != nil {
 		fmt.Println(err)
 	}
 	return err
+}
+
+func (s *UserService) GetUser(id int) (map[string]interface{}, error) {
+	opt := options.FindOneOptions{}
+	query := bson.D{bson.E{Key: "id", Value: id}}
+	output := map[string]interface{}{}
+	err := s.FindOne("user", query, &opt, &output)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return output, err
 }

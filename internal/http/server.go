@@ -29,6 +29,7 @@ func StartServer(h *Handler) *server {
 	r.Route("/v1/api", func(r chi.Router) {
 		r.Get("/health", h.GetHealth())
 		r.Post("/user", h.CreateUser())
+		r.Get("/user/{id}", h.GetUser())
 	})
 
 	// walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {

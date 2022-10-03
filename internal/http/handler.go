@@ -1,8 +1,11 @@
 package http
 
 import (
+	"encoding/json"
 	"net/http"
+	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/josephpballantyne/go-project-template/internal/app"
 )
@@ -13,13 +16,30 @@ type Handler struct {
 
 func (h *Handler) CreateUser() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		u := &app.User{
-			ID:      1,
-			Name:    "Aaa",
-			Address: "123",
+		var u app.User
+		err := json.NewDecoder(r.Body).Decode(&u)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
 		}
-		h.UserService.CreateUser(u)
-		render.JSON(w, r, "user created")
+		h.UserService.CreateUser(&u)
+		render.JSON(w, r, u)
+	}
+}
+
+func (h *Handler) GetUser() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.Atoi(chi.URLParam(r, "id"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		u, err := h.UserService.GetUser(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		render.JSON(w, r, u)
 	}
 }
 
