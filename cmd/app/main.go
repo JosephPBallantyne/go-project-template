@@ -18,7 +18,6 @@ func main() {
 
 func run() error {
 	constants, _ := config.InitViper()
-	fmt.Println(constants, "jojon")
 	db, _ := database.NewMongoClient(constants.Mongo.URL, constants.Mongo.DBName)
 	err := db.ConnectClient()
 	if err != nil {
