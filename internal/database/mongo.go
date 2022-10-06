@@ -14,32 +14,23 @@ import (
 
 type Database struct {
 	client *mongo.Client
-	dbName string
+	name   string
 }
 
-func NewMongoClient(url string, dbName string) (*Database, error) {
+func ConnectClient(url string, name string) (*Database, error) {
 	const op = "NewMongoClient"
-	client, err := mongo.NewClient(options.Client().ApplyURI(url))
-	if err != nil {
-		return nil, &app.Error{Op: op, Err: err}
-	}
-	log.Info("New Mongo DB client created")
-	return &Database{
-		client,
-		dbName,
-	}, nil
-}
-
-func (d *Database) ConnectClient() error {
-	const op = "Database.ConnectClient"
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	err := d.client.Connect(ctx)
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(url))
 	if err != nil {
-		return &app.Error{Op: op, Err: err}
+		log.Fatal("Mongo DB failed to connect")
+		return nil, &app.Error{Op: op, Err: err}
 	}
-	log.Info("Mongo DB client connected")
-	return nil
+	log.Info("Mongo DB Client connected")
+	return &Database{
+		client,
+		name,
+	}, nil
 }
 
 func (d *Database) PingServer() error {
@@ -55,7 +46,7 @@ func (d *Database) PingServer() error {
 
 func (d *Database) InsertOne(collection string, options *options.InsertOneOptions, insert interface{}) error {
 	const op = "Database.InsertOne"
-	col := d.client.Database(d.dbName).Collection(collection)
+	col := d.client.Database(d.name).Collection(collection)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -68,7 +59,7 @@ func (d *Database) InsertOne(collection string, options *options.InsertOneOption
 
 func (d *Database) InsertMany(collection string, options *options.InsertManyOptions, insert interface{}) error {
 	const op = "Database.InsertMany"
-	col := d.client.Database(d.dbName).Collection(collection)
+	col := d.client.Database(d.name).Collection(collection)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -81,7 +72,7 @@ func (d *Database) InsertMany(collection string, options *options.InsertManyOpti
 
 func (d *Database) FindOne(collection string, selector bson.D, options *options.FindOneOptions, output interface{}) error {
 	const op = "Database.FindOne"
-	col := d.client.Database(d.dbName).Collection(collection)
+	col := d.client.Database(d.name).Collection(collection)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -96,7 +87,7 @@ func (d *Database) FindOne(collection string, selector bson.D, options *options.
 
 func (d *Database) FindMany(collection string, selector bson.D, options *options.FindOptions, output interface{}) error {
 	const op = "Database.FindMany"
-	col := d.client.Database(d.dbName).Collection(collection)
+	col := d.client.Database(d.name).Collection(collection)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -115,7 +106,7 @@ func (d *Database) FindMany(collection string, selector bson.D, options *options
 
 func (d *Database) UpdateOne(collection string, selector bson.D, options *options.UpdateOptions, update interface{}) error {
 	const op = "Database.UpdateOne"
-	col := d.client.Database(d.dbName).Collection(collection)
+	col := d.client.Database(d.name).Collection(collection)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -128,7 +119,7 @@ func (d *Database) UpdateOne(collection string, selector bson.D, options *option
 
 func (d *Database) UpdateMany(collection string, selector bson.D, options *options.UpdateOptions, update interface{}) error {
 	const op = "Database.UpdateMany"
-	col := d.client.Database(d.dbName).Collection(collection)
+	col := d.client.Database(d.name).Collection(collection)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -141,7 +132,7 @@ func (d *Database) UpdateMany(collection string, selector bson.D, options *optio
 
 func (d *Database) DeleteOne(collection string, options *options.DeleteOptions, selector bson.D) error {
 	const op = "Database.DeleteOne"
-	col := d.client.Database(d.dbName).Collection(collection)
+	col := d.client.Database(d.name).Collection(collection)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -154,7 +145,7 @@ func (d *Database) DeleteOne(collection string, options *options.DeleteOptions, 
 
 func (d *Database) DeleteMany(collection string, options *options.DeleteOptions, selector bson.D) error {
 	const op = "Database.DeleteMany"
-	col := d.client.Database(d.dbName).Collection(collection)
+	col := d.client.Database(d.name).Collection(collection)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 

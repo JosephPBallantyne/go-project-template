@@ -22,7 +22,11 @@ func (h *Handler) CreateUser() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		h.UserService.CreateUser(&u)
+		err = h.UserService.CreateUser(&u)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		render.JSON(w, r, u)
 	}
 }

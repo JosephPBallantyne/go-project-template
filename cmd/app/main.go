@@ -18,17 +18,11 @@ func main() {
 
 func run() error {
 	constants, _ := config.InitViper()
-	db, _ := database.NewMongoClient(constants.Mongo.URL, constants.Mongo.DBName)
-	err := db.ConnectClient()
-	if err != nil {
-		fmt.Println("db connection failed")
-		return err
-	}
+	db, _ := database.ConnectClient(constants.Mongo.URL, constants.Mongo.DBName)
+	us := database.NewUserService(db)
 
-	us := &database.UserService{Database: db}
 	var h http.Handler
 	h.UserService = us
-
 	http.StartServer(&h)
 	return nil
 }

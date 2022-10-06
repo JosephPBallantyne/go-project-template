@@ -6,26 +6,35 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type UserService struct {
-	*Database
+type Operations interface {
+	InsertOne(collection string, options *options.InsertOneOptions, insert interface{}) error
+	FindOne(collection string, selector bson.D, options *options.FindOneOptions, output interface{}) error
 }
 
-func (s *UserService) CreateUser(u *app.User) error {
+type UserService struct {
+	Operations
+}
+
+func NewUserService(o Operations) *UserService {
+	return &UserService{o}
+}
+
+func (us *UserService) CreateUser(u *app.User) error {
 	const op = "UserService.CreateUser"
 	opt := options.InsertOneOptions{}
-	err := s.InsertOne("user", &opt, u)
+	err := us.InsertOne("user", &opt, u)
 	if err != nil {
 		return &app.Error{Op: op, Err: err}
 	}
 	return nil
 }
 
-func (s *UserService) GetUser(id int) (map[string]interface{}, error) {
+func (us *UserService) GetUser(id int) (map[string]interface{}, error) {
 	const op = "UserService.GetUser"
 	opt := options.FindOneOptions{}
 	query := bson.D{bson.E{Key: "id", Value: id}}
 	output := map[string]interface{}{}
-	err := s.FindOne("user", query, &opt, &output)
+	err := us.FindOne("user", query, &opt, &output)
 	if err != nil {
 		return output, &app.Error{Op: op, Err: err}
 	}
